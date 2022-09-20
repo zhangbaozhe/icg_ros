@@ -3,21 +3,17 @@ project(icg_ros)
 set(CMAKE_CXX_STANDARD 17)
 
 # ===================== External Dependencies =====================
-
-# TODO:
-find_package(Eigen3 REQUIRED
-        OpenGL REQUIRED
-        GLEW REQUIRED
-        glfw3 REQUIRED
-        OpenCV REQUIRED
-        OpenMP REQUIRED)
+find_package(Eigen3 REQUIRED)
+find_package(OpenGL REQUIRED)
+find_package(GLEW REQUIRED)
+find_package(glfw3 REQUIRED)
+find_package(OpenCV REQUIRED)
 
 # ===================== External Dependencies =====================
 
 
 # ===================== ROS Dependencies =====================
 
-# TODO:
 find_package(catkin REQUIRED COMPONENTS
         roscpp
         rospy
@@ -79,31 +75,31 @@ set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -DNDEBUG")
 # ===================== Set group name =====================
 
 set(SOURCES
-        src/${PROJECT_NAME}/common.cpp
-        src/${PROJECT_NAME}/body.cpp
-        src/${PROJECT_NAME}/renderer_geometry.cpp
-        src/${PROJECT_NAME}/renderer.cpp
-        src/${PROJECT_NAME}/normal_renderer.cpp
-        src/${PROJECT_NAME}/basic_depth_renderer.cpp
-        src/${PROJECT_NAME}/model.cpp
-        src/${PROJECT_NAME}/region_model.cpp
-        src/${PROJECT_NAME}/depth_model.cpp
-        src/${PROJECT_NAME}/camera.cpp
-        src/${PROJECT_NAME}/loader_camera.cpp
-        src/${PROJECT_NAME}/viewer.cpp
-        src/${PROJECT_NAME}/image_viewer.cpp
-        src/${PROJECT_NAME}/normal_viewer.cpp
-        src/${PROJECT_NAME}/modality.cpp
-        src/${PROJECT_NAME}/region_modality.cpp
-        src/${PROJECT_NAME}/depth_modality.cpp
-        src/${PROJECT_NAME}/optimizer.cpp
-        src/${PROJECT_NAME}/detector.cpp
-        src/${PROJECT_NAME}/static_detector.cpp
-        src/${PROJECT_NAME}/manual_detector.cpp
-        src/${PROJECT_NAME}/refiner.cpp
-        src/${PROJECT_NAME}/publisher.cpp
-        src/${PROJECT_NAME}/tracker.cpp
-        src/${PROJECT_NAME}/generator.cpp)
+        src/icg/common.cpp
+        src/icg/body.cpp
+        src/icg/renderer_geometry.cpp
+        src/icg/renderer.cpp
+        src/icg/normal_renderer.cpp
+        src/icg/basic_depth_renderer.cpp
+        src/icg/model.cpp
+        src/icg/region_model.cpp
+        src/icg/depth_model.cpp
+        src/icg/camera.cpp
+        src/icg/loader_camera.cpp
+        src/icg/viewer.cpp
+        src/icg/image_viewer.cpp
+        src/icg/normal_viewer.cpp
+        src/icg/modality.cpp
+        src/icg/region_modality.cpp
+        src/icg/depth_modality.cpp
+        src/icg/optimizer.cpp
+        src/icg/detector.cpp
+        src/icg/static_detector.cpp
+        src/icg/manual_detector.cpp
+        src/icg/refiner.cpp
+        src/icg/publisher.cpp
+        src/icg/tracker.cpp
+        src/icg/generator.cpp)
 
 set(LIBRARIES
         Eigen3::Eigen
@@ -112,12 +108,19 @@ set(LIBRARIES
         glfw
         ${OpenCV_LIBRARIES})
 
+if(UNIX)
+    list(APPEND LIBRARIES pthread stdc++fs)
+endif()
+
 # ===================== Set group name =====================
 
 
 # ===================== STATIC Library =====================
 
-# TODO:
+catkin_package(
+        INCLUDE_DIRS include third_party
+        LIBRARIES ${PROJECT_NAME}
+        CATKIN_DEPENDS roscpp rospy std_msgs)
 
 include_directories(
         include
@@ -126,18 +129,35 @@ include_directories(
 
 add_library(libicg
         STATIC ${SOURCES})
-target_link_libraries(libicg
-        ${catkin_LIBRARIES}
-        ${LIBRARIES})
-
 # ===================== STATIC Library =====================
 
 
 # ===================== Executables =====================
 
-# TODO:
 add_executable(icg_test_node
         src/icg_test_node.cpp)
-target_link_libraries(icg_test_node libicg)
 
 # ===================== Executables =====================
+
+# ===================== Linking =====================
+
+target_link_libraries(icg_test_node libicg)
+
+target_link_libraries(libicg PUBLIC
+        ${LIBRARIES})
+
+install(TARGETS libicg
+        ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+        LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+        RUNTIME DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION}
+        )
+
+install(
+        DIRECTORY include/icg/
+        DIRECTORY third_party/
+        DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
+        FILES_MATCHING PATTERN "*.h"
+        PATTERN ".svn" EXCLUDE
+)
+# ===================== Linking =====================
+
