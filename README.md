@@ -1,1 +1,1 @@
-# ICG Wrapper
+# ICG ROS Wrapper
