@@ -9,12 +9,15 @@
 #include <icg/common.h>
 #include <ros/ros.h>
 
+namespace icg_ros
+{
+
 class ICG_ROS
 {
  public:
 
   ICG_ROS(ros::NodeHandle &nh)
-    : nh_{nh}
+      : nh_{nh}
   {
 
   }
@@ -22,5 +25,6 @@ class ICG_ROS
  private:
   ros::NodeHandle nh_;
 };
+}
 
 #endif //ICG_ROS_ICG_ROS_INCLUDE_ICG_ROS_ICG_ROS_INTERFACE_H_

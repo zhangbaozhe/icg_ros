@@ -99,7 +99,7 @@ set(SOURCES
         src/icg/refiner.cpp
         src/icg/publisher.cpp
         src/icg/tracker.cpp
-        src/icg/generator.cpp)
+        src/icg/generator.cpp src/icg_ros/ros_camera.cpp)
 
 set(LIBRARIES
         Eigen3::Eigen
@@ -135,13 +135,13 @@ add_library(libicg
 # ===================== Executables =====================
 
 add_executable(icg_test_node
-        src/icg_test_node.cpp)
+        src/icg_test_node.cpp src/icg_ros/ros_camera.cpp)
 
 # ===================== Executables =====================
 
 # ===================== Linking =====================
 
-target_link_libraries(icg_test_node libicg)
+target_link_libraries(icg_test_node libicg ${catkin_LIBRARIES})
 
 target_link_libraries(libicg PUBLIC
         ${LIBRARIES})
