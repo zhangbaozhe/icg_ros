@@ -8,6 +8,7 @@ find_package(OpenGL REQUIRED)
 find_package(GLEW REQUIRED)
 find_package(glfw3 REQUIRED)
 find_package(OpenCV REQUIRED)
+find_package(gflags REQUIRED)
 
 # ===================== External Dependencies =====================
 
@@ -99,13 +100,18 @@ set(SOURCES
         src/icg/refiner.cpp
         src/icg/publisher.cpp
         src/icg/tracker.cpp
-        src/icg/generator.cpp src/icg_ros/ros_camera.cpp)
+        src/icg/generator.cpp)
+
+set(INTERFACE_SOURCES
+        src/icg_ros/icg_ros_interface.cpp
+        src/icg_ros/ros_camera.cpp)
 
 set(LIBRARIES
         Eigen3::Eigen
         OpenGL::GL
         GLEW::GLEW
         glfw
+        gflags
         ${OpenCV_LIBRARIES})
 
 if(UNIX)
@@ -119,7 +125,7 @@ endif()
 
 catkin_package(
         INCLUDE_DIRS include third_party
-        LIBRARIES ${PROJECT_NAME}
+        LIBRARIES icg
         CATKIN_DEPENDS roscpp rospy std_msgs)
 
 include_directories(
@@ -127,26 +133,29 @@ include_directories(
         third_party
         ${catkin_INCLUDE_DIRS})
 
-add_library(libicg
+add_library(icg
         STATIC ${SOURCES})
+
 # ===================== STATIC Library =====================
 
 
 # ===================== Executables =====================
 
 add_executable(icg_test_node
-        src/icg_test_node.cpp src/icg_ros/ros_camera.cpp)
+        src/icg_test_node.cpp ${INTERFACE_SOURCES})
 
 # ===================== Executables =====================
 
 # ===================== Linking =====================
 
-target_link_libraries(icg_test_node libicg ${catkin_LIBRARIES})
+target_link_libraries(icg_test_node
+        icg
+        ${catkin_LIBRARIES})
 
-target_link_libraries(libicg PUBLIC
+target_link_libraries(icg PUBLIC
         ${LIBRARIES})
 
-install(TARGETS libicg
+install(TARGETS icg
         ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
         LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
         RUNTIME DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION}

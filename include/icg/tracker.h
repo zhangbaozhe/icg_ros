@@ -21,6 +21,10 @@
 #include <thread>
 #include <vector>
 
+namespace icg_ros {
+class ICG_ROS;
+}
+
 namespace icg {
 
 /**
@@ -197,6 +201,7 @@ class Tracker {
   bool tracking_started_ = false;
   bool quit_tracker_process_ = false;
   bool set_up_ = false;
+  friend class icg_ros::ICG_ROS;
 };
 
 }  // namespace icg
