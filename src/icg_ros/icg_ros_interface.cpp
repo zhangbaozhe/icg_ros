@@ -114,14 +114,38 @@ ICG_ROS::ICG_ROS(ros::NodeHandle &nh, const icg_ros::ICG_ROS_Config &config)
   }
 }
 
-bool ICG_ROS::RunTrackerProcessOneFrame(bool execution_detection, bool start_tracking)
+bool ICG_ROS::RunTrackerProcessOneFrame(bool execution_detection, bool start_tracking, int iteration)
 {
   if (!tracker_ptr_->set_up()) {
     std::cerr << "Set up tracker " << tracker_ptr_->name() << " first" << std::endl;
     return false;
   }
 
+  tracker_ptr_->tracking_started_ = false;
+  tracker_ptr_->quit_tracker_process_ = false;
+  tracker_ptr_->execute_detection_ = execution_detection;
+  tracker_ptr_->start_tracking_ = start_tracking;
 
+  auto begin{std::chrono::high_resolution_clock::now()};
+  if (!tracker_ptr_->UpdateCameras(tracker_ptr_->execute_detection_)) return false;
+  if (tracker_ptr_->execute_detection_) {
+    if (!tracker_ptr_->ExecuteDetectionCycle(iteration)) return false;
+    tracker_ptr_->tracking_started_ = false;
+    tracker_ptr_->execute_detection_ = false;
+  }
+  if (tracker_ptr_->start_tracking_) {
+    if (!tracker_ptr_->StartModalities(iteration)) return false;
+    tracker_ptr_->tracking_started_ = true;
+    tracker_ptr_->start_tracking_ = false;
+  }
+  if (tracker_ptr_->tracking_started_) {
+    if (!tracker_ptr_->ExecuteTrackingCycle(iteration)) return false;
+  }
+  if (!tracker_ptr_->UpdateViewers(iteration)) return false;
+  if (tracker_ptr_->quit_tracker_process_) return true;
+  if (!tracker_ptr_->synchronize_cameras_) tracker_ptr_->WaitUntilCycleEnds(begin);
+
+  return true;
 }
 
 
