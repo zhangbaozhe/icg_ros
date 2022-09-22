@@ -45,8 +45,8 @@ struct ICG_ROS_Config
   std::string depth_camera_info_topic;
   std::string color_viewer_name;
   std::string depth_viewer_name;
-  std::string color_depth_renderer_name_;
-  std::string depth_depth_renderer_name_;
+  std::string color_depth_renderer_name;
+  std::string depth_depth_renderer_name;
   std::string detector_suffix = "detector";
   std::string region_model_suffix = "region_model";
   std::string depth_model_suffix = "depth_model";
@@ -64,7 +64,7 @@ class ICG_ROS
 
   inline std::shared_ptr<icg::Tracker> &GetTrackerPtr() { return tracker_ptr_; }
 
-  bool RunTrackerProcessOneFrame(bool execution_detection, bool start_tracking);
+  bool RunTrackerProcessOneFrame(bool execution_detection, bool start_tracking, int iteration);
 
  private:
   ros::NodeHandle nh_;

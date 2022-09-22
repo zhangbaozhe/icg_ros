@@ -47,11 +47,11 @@ ICG_ROS::ICG_ROS(ros::NodeHandle &nh, const icg_ros::ICG_ROS_Config &config)
 
   // set up depth renderer
   color_depth_renderer_ptr_ = std::make_shared<icg::FocusedBasicDepthRenderer>(
-      config_.color_depth_renderer_name_,
+      config_.color_depth_renderer_name,
       renderer_geometry_ptr_,
       color_camera_ptr_);
   depth_depth_renderer_ptr_ = std::make_shared<icg::FocusedBasicDepthRenderer>(
-      config_.depth_depth_renderer_name_,
+      config_.depth_depth_renderer_name,
       renderer_geometry_ptr_,
       depth_camera_ptr_);
 
@@ -151,4 +151,3 @@ bool ICG_ROS::RunTrackerProcessOneFrame(bool execution_detection, bool start_tra
 
 }
 
-}
