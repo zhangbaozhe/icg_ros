@@ -64,23 +64,13 @@ class ICG_ROS
 
   inline std::shared_ptr<icg::Tracker> &GetTrackerPtr() { return tracker_ptr_; }
 
-  bool RunTrackerProcessOneFrame(bool execution_detection, bool start_tracking, int iteration);
+  bool RunTrackerProcessOneFrame(int iteration);
 
  private:
   ros::NodeHandle nh_;
   ICG_ROS_Config config_;
   std::shared_ptr<icg::Tracker> tracker_ptr_;
-  std::shared_ptr<icg::RendererGeometry> renderer_geometry_ptr_;
 
-  // icg ros interface cameras
-  std::shared_ptr<RosColorCamera> color_camera_ptr_;
-  std::shared_ptr<RosDepthCamera> depth_camera_ptr_;
-
-  std::shared_ptr<icg::NormalColorViewer> color_viewer_ptr_;
-  std::shared_ptr<icg::NormalDepthViewer> depth_viewer_ptr_;
-
-  std::shared_ptr<icg::FocusedBasicDepthRenderer> color_depth_renderer_ptr_;
-  std::shared_ptr<icg::FocusedBasicDepthRenderer> depth_depth_renderer_ptr_;
 
 };
 }

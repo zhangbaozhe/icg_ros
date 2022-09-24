@@ -13,8 +13,6 @@
 
 DEFINE_string(config_dir, "", "The directory of the configuration files");
 
-
-
 int main(int argc, char **argv)
 {
   gflags::ParseCommandLineFlags(&argc, &argv, true);
@@ -41,29 +39,15 @@ int main(int argc, char **argv)
   icg_ros::ICG_ROS interface(nh, config);
 
 
-
-//  icg_ros::RosColorCamera color_interface(
-//      "color_interface",
-//      "/camera/color/image_raw",
-//      "/camera/color/camera_info",
-//      color_camera_nh);
-//  icg_ros::RosDepthCamera depth_interface(
-//      "depth_interface",
-//      "/camera/aligned_depth_to_color/image_raw",
-//      "/camera/aligned_depth_to_color/camera_info",
-//      depth_camera_nh);
-//
-//  color_interface.SetUp();
-//  depth_interface.SetUp();
-
-  ros::Rate rate(30);
+  ros::Rate rate(60);
 
   int iteration = 0;
   while (ros::ok()) {
-    interface.RunTrackerProcessOneFrame(true, true, iteration);
+    interface.RunTrackerProcessOneFrame(iteration);
     iteration++;
     rate.sleep();
   }
+  ros::shutdown();
 
   return 0;
 

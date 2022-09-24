@@ -60,13 +60,15 @@ bool RosColorCamera::SetUp()
 
 bool RosColorCamera::UpdateImage(bool synchronized)
 {
-  if (!set_up_) {
+  if (!set_up_ || !ros::ok()) {
     std::cerr << "Set up ros color camera " << name_ << " first"
               << std::endl;
     return false;
   }
-  image_ = cv_bridge::toCvCopy(ros::topic::waitForMessage<sensor_msgs::Image>(color_image_topic_, nh_),
-     "bgr8")->image;
+  auto image_msg = ros::topic::waitForMessage<sensor_msgs::Image>(color_image_topic_, nh_);
+  if (image_msg == nullptr)
+    return false;
+  image_ = cv_bridge::toCvCopy(image_msg, "bgr8")->image;
   if (image_.empty()) {
     std::cerr << "Could not update image from the topic " << color_image_topic_ << std::endl;
     return false;
@@ -126,13 +128,15 @@ bool RosDepthCamera::SetUp()
 
 bool RosDepthCamera::UpdateImage(bool synchronized)
 {
-  if (!set_up_) {
+  if (!set_up_ || !ros::ok()) {
     std::cerr << "Set up ros color camera " << name_ << " first"
               << std::endl;
     return false;
   }
-  image_ = cv_bridge::toCvCopy(ros::topic::waitForMessage<sensor_msgs::Image>(depth_image_topic_, nh_),
-                               "16UC1")->image;
+  auto image_msg = ros::topic::waitForMessage<sensor_msgs::Image>(depth_image_topic_, nh_);
+  if (image_msg == nullptr)
+    return false;
+  image_ = cv_bridge::toCvCopy(image_msg, "16UC1")->image;
   if (image_.empty()) {
     std::cerr << "Could not update image from the topic " << depth_image_topic_ << std::endl;
     return false;

@@ -16,6 +16,16 @@ ICG_ROS::ICG_ROS(ros::NodeHandle &nh, const icg_ros::ICG_ROS_Config &config)
   constexpr bool kModelOcclusions = false;
   constexpr bool kVisualizePoseResult = false;
   constexpr bool kSaveImages = false;
+
+  std::shared_ptr<icg::RendererGeometry> renderer_geometry_ptr_;
+  // icg ros interface cameras
+  std::shared_ptr<RosColorCamera> color_camera_ptr_;
+  std::shared_ptr<RosDepthCamera> depth_camera_ptr_;
+  std::shared_ptr<icg::NormalColorViewer> color_viewer_ptr_;
+  std::shared_ptr<icg::NormalDepthViewer> depth_viewer_ptr_;
+  std::shared_ptr<icg::FocusedBasicDepthRenderer> color_depth_renderer_ptr_;
+  std::shared_ptr<icg::FocusedBasicDepthRenderer> depth_depth_renderer_ptr_;
+
   tracker_ptr_ = std::make_shared<icg::Tracker>(config_.tracker_name);
   renderer_geometry_ptr_ = std::make_shared<icg::RendererGeometry>(config_.renderer_geometry_name);
   color_camera_ptr_ = std::make_shared<RosColorCamera>(config_.color_camera_name,
@@ -114,17 +124,12 @@ ICG_ROS::ICG_ROS(ros::NodeHandle &nh, const icg_ros::ICG_ROS_Config &config)
   }
 }
 
-bool ICG_ROS::RunTrackerProcessOneFrame(bool execution_detection, bool start_tracking, int iteration)
+bool ICG_ROS::RunTrackerProcessOneFrame(int iteration)
 {
   if (!tracker_ptr_->set_up()) {
     std::cerr << "Set up tracker " << tracker_ptr_->name() << " first" << std::endl;
     return false;
   }
-
-  tracker_ptr_->tracking_started_ = false;
-  tracker_ptr_->quit_tracker_process_ = false;
-  tracker_ptr_->execute_detection_ = execution_detection;
-  tracker_ptr_->start_tracking_ = start_tracking;
 
   auto begin{std::chrono::high_resolution_clock::now()};
   if (!tracker_ptr_->UpdateCameras(tracker_ptr_->execute_detection_)) return false;
