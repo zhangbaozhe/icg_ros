@@ -1,7 +1,7 @@
 # ICG ROS Wrapper
 
 This is a ROS wrapper of the implementation of a pose tracking
-library ICG developed by DRL. The original repo can be found [here](https://github.com/DLR-RM/3DObjectTracking/tree/master/ICG).
+library ICG developed by DLR. The original repo can be found [here](https://github.com/DLR-RM/3DObjectTracking/tree/master/ICG).
 
 If you are interested in this work and want to use it in your project, please site it with
 ```text
