@@ -8,6 +8,8 @@
 #include <ros/ros.h>
 #include <icg_ros/ros_camera.h>
 #include <icg_ros/icg_ros_interface.h>
+#include <std_msgs/Bool.h>
+#include <std_msgs/Float64MultiArray.h>
 
 #include <gflags/gflags.h>
 
@@ -20,6 +22,7 @@ int main(int argc, char **argv)
 
   ros::init(argc, argv, "icg_test_node");
 
+  ros::NodeHandle interface_nh;
   ros::NodeHandle nh;
 
   icg_ros::ICG_ROS_Config config;
@@ -36,7 +39,14 @@ int main(int argc, char **argv)
   config.color_depth_renderer_name = "color_depth_renderer";
   config.depth_depth_renderer_name = "depth_depth_renderer";
 
-  icg_ros::ICG_ROS interface(nh, config);
+  icg_ros::ICG_ROS interface(interface_nh, config);
+  auto tracker_ptr = interface.GetTrackerPtr();
+  auto tracking_sub = nh.subscribe<std_msgs::Bool>("start_tracking", 10,
+      [&](const std_msgs::BoolConstPtr &msg)
+      {
+        tracker_ptr->ExecuteDetection(msg->data);
+      });
+  auto pose_publisher = nh.advertise<std_msgs::Float64MultiArray>("pose", 10);
 
 
   ros::Rate rate(60);
@@ -44,6 +54,8 @@ int main(int argc, char **argv)
   int iteration = 0;
   while (ros::ok()) {
     interface.RunTrackerProcessOneFrame(iteration);
+    // TODO: publish this
+    icg::Transform3fA temp_transform = tracker_ptr->body_ptrs()[0]->body2world_pose();
     iteration++;
     rate.sleep();
   }
