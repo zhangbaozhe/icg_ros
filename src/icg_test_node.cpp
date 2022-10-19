@@ -57,6 +57,7 @@ int main(int argc, char **argv)
     // TODO: publish this
     icg::Transform3fA temp_transform = tracker_ptr->body_ptrs()[0]->body2world_pose();
     iteration++;
+    ros::spinOnce();
     rate.sleep();
   }
   ros::shutdown();
