@@ -5,20 +5,27 @@
 #include <iostream>
 #include <string>
 
+#include <Eigen/Geometry>
 #include <ros/ros.h>
 #include <icg_ros/ros_camera.h>
 #include <icg_ros/icg_ros_interface.h>
 #include <std_msgs/Bool.h>
 #include <std_msgs/Float64MultiArray.h>
 
+#include <tf2_eigen/tf2_eigen.h>
+#include <geometry_msgs/TransformStamped.h>
+#include <tf2_ros/transform_broadcaster.h>
+
 #include <gflags/gflags.h>
 
 DEFINE_string(config_dir, "", "The directory of the configuration files");
+DEFINE_string(camera_frame, "", "The camera frame in which object is tracked");
 
 int main(int argc, char **argv)
 {
   gflags::ParseCommandLineFlags(&argc, &argv, true);
   const std::string config_dir = FLAGS_config_dir;
+  const std::string camera_frame = FLAGS_camera_frame;
 
   ros::init(argc, argv, "icg_test_node");
 
@@ -47,15 +54,26 @@ int main(int argc, char **argv)
         tracker_ptr->ExecuteDetection(msg->data);
       });
   auto pose_publisher = nh.advertise<std_msgs::Float64MultiArray>("pose", 10);
-
+  static tf2_ros::TransformBroadcaster br;
 
   ros::Rate rate(60);
 
   int iteration = 0;
   while (ros::ok()) {
     interface.RunTrackerProcessOneFrame(iteration);
-    // TODO: publish this
     icg::Transform3fA temp_transform = tracker_ptr->body_ptrs()[0]->body2world_pose();
+    Eigen::Affine3d eigen_affine_transform;
+    eigen_affine_transform.matrix() = temp_transform.matrix().cast<double>();
+    std::cerr << "" << eigen_affine_transform.matrix() << std::endl;
+
+    geometry_msgs::TransformStamped tf_stamped;
+    tf_stamped = tf2::eigenToTransform(eigen_affine_transform);
+
+    tf_stamped.header.frame_id = camera_frame;
+    tf_stamped.child_frame_id = "tracked_obj";
+    tf_stamped.header.stamp = ros::Time::now();
+    br.sendTransform(tf_stamped);
+
     iteration++;
     ros::spinOnce();
     rate.sleep();
