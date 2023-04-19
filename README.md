@@ -30,7 +30,7 @@ Before proceeding with this wrapper, please check the README file of the ICG rep
 This wrapper uses an additional package `gflags` for parsing the command-line arguments.
 You can install it using 
 ```bash
-sudo apt-get install libflags-dev
+sudo apt-get install libgflags-dev
 ```
 
 After installing all the dependencies, you should compile this package as 
