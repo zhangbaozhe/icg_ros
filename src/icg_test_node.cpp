@@ -2,19 +2,18 @@
 // Created by baozhe on 22-9-20.
 //
 
+#include "icg_ros/ros_camera.h"
+#include "icg_ros/icg_ros_interface.h"
+
 #include <iostream>
 #include <string>
 
 #include <Eigen/Geometry>
 #include <ros/ros.h>
-#include <icg_ros/ros_camera.h>
-#include <icg_ros/icg_ros_interface.h>
 #include <std_msgs/Bool.h>
 #include <std_msgs/Float64MultiArray.h>
+#include <geometry_msgs/PoseStamped.h>
 
-#include <tf2_eigen/tf2_eigen.h>
-#include <geometry_msgs/TransformStamped.h>
-#include <tf2_ros/transform_broadcaster.h>
 
 #include <gflags/gflags.h>
 
@@ -53,8 +52,7 @@ int main(int argc, char **argv)
       {
         tracker_ptr->ExecuteDetection(msg->data);
       });
-  auto pose_publisher = nh.advertise<std_msgs::Float64MultiArray>("pose", 10);
-  static tf2_ros::TransformBroadcaster br;
+  auto pose_publisher = nh.advertise<geometry_msgs::PoseStamped>("pose", 10);
 
   ros::Rate rate(60);
 
@@ -62,18 +60,19 @@ int main(int argc, char **argv)
   while (ros::ok()) {
     interface.RunTrackerProcessOneFrame(iteration);
     icg::Transform3fA temp_transform = tracker_ptr->body_ptrs()[0]->body2world_pose();
-    Eigen::Affine3d eigen_affine_transform;
-    eigen_affine_transform.matrix() = temp_transform.matrix().cast<double>();
-    std::cerr << "" << eigen_affine_transform.matrix() << std::endl;
-
-    geometry_msgs::TransformStamped tf_stamped;
-    tf_stamped = tf2::eigenToTransform(eigen_affine_transform);
-
-    tf_stamped.header.frame_id = camera_frame;
-    tf_stamped.child_frame_id = "tracked_obj";
-    tf_stamped.header.stamp = ros::Time::now();
-    br.sendTransform(tf_stamped);
-
+    Eigen::Quaternionf rotation(temp_transform.matrix().block<3, 3>(0, 0));
+    Eigen::Vector3f trans(temp_transform.matrix().block<3, 1>(0, 3));
+    geometry_msgs::PoseStamped pose;
+    pose.header.frame_id = "camera";
+    pose.header.stamp = ros::Time::now();  
+    pose.pose.orientation.w = rotation.w();
+    pose.pose.orientation.x = rotation.x();
+    pose.pose.orientation.y = rotation.y();
+    pose.pose.orientation.z = rotation.z();
+    pose.pose.position.x = trans.x();
+    pose.pose.position.y = trans.y();
+    pose.pose.position.z = trans.z();
+    pose_publisher.publish(pose);
     iteration++;
     ros::spinOnce();
     rate.sleep();
