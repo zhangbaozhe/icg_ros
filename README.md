@@ -3,7 +3,7 @@
 This is a ROS wrapper of the implementation of a pose tracking
 library ICG developed by DLR. The original repo can be found [here](https://github.com/DLR-RM/3DObjectTracking/tree/master/ICG).
 
-If you are interested in this work and want to use it in your project, please site it with
+If you are interested in this work and want to use it in your project, please cite it with
 ```text
 @InProceedings{Stoiber_2022_CVPR,
     author    = {Stoiber, Manuel and Sundermeyer, Martin and Triebel, Rudolph},
@@ -49,5 +49,5 @@ rosrun icg_ros icg_test_node -config_dir=src/icg_ros/config
 The configuration directory in this example contains a triangle 3D model, 
 a yaml description of this model, and a description of the detector.
 
-For more information of these configuration files, please refer to the original
+For more information on these configuration files, please refer to the original
 repo.
